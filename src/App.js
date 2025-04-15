@@ -1,0 +1,27 @@
+import './App.css';
+import Home from './Modules/Home/Home';
+import UserProfile from './Modules/Profile/UserProfile'
+import AdminProfile from './Modules/Profile/AdminProfile'
+import Register from './Modules/Register/Register'
+import React from 'react';
+// import Login from './Modules/Lg/Login'
+import { BrowserRouter as Router, Routes, Route,Link } from 'react-router-dom';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/user/profile" element={<UserProfile />} />
+          <Route path="/admin/profile" element={<AdminProfile />} />
+          <Route path="/register" element={<Register />} />
+          
+        </Routes>
+    </Router>
+
+  );
+}
+
+export default App;
