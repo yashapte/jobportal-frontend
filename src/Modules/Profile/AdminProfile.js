@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Container,
@@ -16,42 +16,66 @@ import {
   TextField,
   DialogActions,
 } from '@mui/material';
-
-const initialJobs = [
-  {
-    id: 1,
-    name: 'React Developer',
-    jd: 'Build and maintain frontend applications.',
-    applicants: 10,
-  },
-  {
-    id: 2,
-    name: 'Node.js Backend',
-    jd: 'Develop server-side APIs and services.',
-    applicants: 7,
-  },
-];
+import axios from 'axios'; 
 
 const AdminProfilePage = () => {
-  const [jobs, setJobs] = useState(initialJobs);
+  const [jobs, setJobs] = useState([]);
+  const [currentuser,setCurrentuser] = useState({
+    id:'',
+    name:'',
+    email:''
+  })
   const [openDialog, setOpenDialog] = useState(false);
-  const [editMode, setEditMode] = useState(false);const [formData, setFormData] = useState({
-    id: null,
+  const [editMode, setEditMode] = useState(false);
+  const [formData, setFormData] = useState({
+    id: 'null',
     name: '',
     jd: '',
     company: '',
     experience: '',
   });
 
+  useEffect(() => {
+    const fetchdetails = async (e) => {
+      try {
+        
+        const userdetails = await axios.post('/admin/profile/rc', {}, { withCredentials: true });
+        const { _id, name, email } = userdetails.data.loggedinuser;
+        console.log(_id, name, email)
+        setCurrentuser({ id: _id, name, email});
+
+        const response = await axios.get('/admin/alljobs');
+        setJobs(response.data.alljobs);
+        console.log(response.data)
+
+
+      } catch (error) {
+        console.error('Error fetching jobs:', error);
+      }
+    };
+
+    fetchdetails();
+  }, []);
+
   const navigate = useNavigate();
 
-  const handleLogout = () => {
+  const handleLogout = async (e) => {
+    await axios.post('/logout')
     navigate('/')
     console.log('Admin logged out');
   };
 
-  const handleDelete = (id) => {
-    setJobs(jobs.filter((job) => job.id !== id));
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`/admin/job/delete/${id}`, {
+        withCredentials: true,
+      });
+  
+      // Remove job from state
+      setJobs((prevJobs) => prevJobs.filter((job) => job._id !== id));
+    } catch (error) {
+      console.error('Error deleting job:', error);
+    }
   };
 
   const handleEdit = (job) => {
@@ -66,21 +90,48 @@ const AdminProfilePage = () => {
     setOpenDialog(true);
   };
 
-  const handleSave = () => {
-    if (editMode) {
-      // Update existing job
-      setJobs(jobs.map((job) => (job.id === formData.id ? formData : job)));
-    } else {
-      // Add new job
-      const newJob = {
-        ...formData,
-        id: Date.now(),
-        applicants: 0,
+  const handleSave = async () => {
+
+
+    try {
+      const data = {
+        jobname: formData.name,
+        jd: formData.jd,
       };
-      setJobs([...jobs, newJob]);
+  
+      let response;
+  
+      if (editMode) {
+        
+        response = await axios.put(`/admin/updatejob/${formData._id}`, data, {
+          withCredentials: true,
+        });
+  
+        
+        setJobs((prevJobs) =>
+          prevJobs.map((job) =>
+            job._id === formData._id ? response.data.job : job
+          )
+        );
+      } else {
+        
+        response = await axios.post('/admin/createjob', data, {
+          withCredentials: true,
+        });
+  
+        
+        setJobs((prevJobs) => [...prevJobs, response.data.job]);
+      }
+  
+      setOpenDialog(false);
+    } catch (error) {
+      console.error('Error saving job:', error);
     }
-    setOpenDialog(false);
+
   };
+
+   
+   
 
   const handleChange = (e) => {
     setFormData((prev) => ({
@@ -103,8 +154,8 @@ const AdminProfilePage = () => {
         }}
       >
         <Box>
-          <Typography variant="h5">Admin</Typography>
-          <Typography variant="subtitle1">admin@example.com</Typography>
+          <Typography variant="h5">{currentuser.name}</Typography>
+          <Typography variant="subtitle1">{currentuser.email}</Typography>
         </Box>
         <Button variant="contained" color="error" onClick={handleLogout}>
           Logout
@@ -121,7 +172,7 @@ const AdminProfilePage = () => {
       {/* Job Cards */}
       <Grid container spacing={2}>
         {jobs.map((job) => (
-          <Grid item xs={12} key={job.id}>
+          <Grid item xs={12} key={job._id}>
             <Card>
               <CardContent>
                 <Typography variant="h6">{job.name}</Typography>
@@ -130,13 +181,13 @@ const AdminProfilePage = () => {
                 </Typography>
                 <Stack direction="row" justifyContent="space-between" alignItems="center">
                   <Typography variant="body2" color="text.secondary">
-                    Applicants: {job.applicants}
+                    Applicants: {job.applicants.length}
                   </Typography>
                   <Stack direction="row" spacing={1}>
                     <Button
                       variant="outlined"
                       size="small"
-                      onClick={() => handleEdit(job)}
+                      onClick={() => handleEdit(job._id)}
                     >
                       Update
                     </Button>
@@ -144,7 +195,7 @@ const AdminProfilePage = () => {
                       variant="outlined"
                       size="small"
                       color="error"
-                      onClick={() => handleDelete(job.id)}
+                      onClick={() => handleDelete(job._id)}
                     >
                       Delete
                     </Button>
@@ -168,22 +219,6 @@ const AdminProfilePage = () => {
             value={formData.name}
             onChange={handleChange}
           />
-          <TextField
-            margin="dense"
-            label="Years of experience"
-            name="experience"
-            fullWidth
-            value={formData.name}
-            onChange={handleChange}
-          />
-          <TextField
-          margin="dense"
-          label="Company"
-          name="company"
-          fullWidth
-          value={formData.name}
-          onChange={handleChange}
-        />
           <TextField
             margin="dense"
             label="Job Description"

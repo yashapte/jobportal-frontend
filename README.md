@@ -5,7 +5,6 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 ## Available Scripts
 
 
-$ git remote add origin https://github.com/yashapte/jobportal.git
 In the project directory, you can run:
 
 ### `npm start`
@@ -70,3 +69,28 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+
+
+### git commends 
+
+$ git init
+$ git remote add origin https://github.com/yashapte/jobportal.git
+$ git add .
+$git commit -m "first commit"
+$ git branch -M main
+$ git push -u origin main
+
+
+ // if (editMode) {
+    //   // Update existing job
+    //   // setJobs(jobs.map((job) => (job.id === formData.id ? formData : job)));
+    // } else {
+    //   // Add new job
+    //   const newJob = {
+    //     ...formData,
+    //     id: Date.now(),
+    //     applicants: 0,
+    //   };
+    //   setJobs([...jobs, newJob]);
+    // }

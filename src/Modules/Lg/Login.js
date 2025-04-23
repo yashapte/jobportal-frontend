@@ -15,20 +15,25 @@ function Login() {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState(0);
     const [logindata, setlogindata] = useState({
-        email: "",
-        password: ""
+        email: '',
+        password: ''
     });
 
 
     const handlesubmit = async (e) => {
-        // try {
-        //     e.preventDefault()
-        //     await axios.post('/login', logindata);
-           activeTab ===0? navigate('/user/profile'):navigate('/admin/profile');
-            console.log(activeTab)
-        // } catch (error) {
-        //     console.log(error.msg)
-        // }
+         try {
+             e.preventDefault()
+           const response = activeTab === 0 ? await axios.post('/user/login', logindata,{withCredentials: true})
+           :await axios.post('/admin/login/rc', logindata,{withCredentials: true})
+          console.log(response)
+             console.log(logindata,activeTab)
+           activeTab===0? 
+           navigate('/user/profile')
+           :navigate('/admin/profile')
+
+        } catch (error) {
+             console.log(error.msg)
+         }
 
     }
 
@@ -70,12 +75,14 @@ function Login() {
                 margin="normal"
                 label="Email"
                 type="email"
+                name="email"
                 value={logindata.email.value}
                 onChange={handleChange}
               />
               <TextField
                 fullWidth
                 margin="normal"
+                name="password"
                 label="Password"
                 type="password"
                 value={logindata.password.value}
@@ -105,34 +112,6 @@ function Login() {
           </CardContent>
         </Card>
       </Box>
-        // <Fragment>
-        //     <form id="Register">
-        //         <div className="mb-3">
-        //             <label className="form-label">Email address</label>
-        //             <input name="email"
-        //                 type="email"
-        //                 className="form-control"
-        //                 id="email"
-        //                 placeholder="Enter your email"
-        //                 value={logindata.email.value}
-        //                 onChange={handleChange}
-        //             />
-        //         </div>
-        //         <div className="mb-3">
-        //             <label className="form-label">Password</label>
-        //             <input name="password"
-        //                 type="password"
-        //                 className="form-control"
-        //                 id="password"
-        //                 placeholder="Enter your full password"
-        //                 value={logindata.password.value}
-        //                 onChange={handleChange} />
-        //         </div>
-        //         <button onClick={handlesubmit} type="submit" className="btn btn-primary">Submit</button>
-        //     </form>
-        // </Fragment>
-
-
     )
 }
 

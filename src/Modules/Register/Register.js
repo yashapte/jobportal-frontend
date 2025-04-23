@@ -25,13 +25,18 @@ function Register () {
     const [formdata, setFormData] = useState({
         name: '',
         email: '',
-        address: '',
         password: '',
       });
 
     const  handleRegister= async (e)=>{
-      navigate('/')
-        //const response = await axios.post('/register', formdata);
+      console.log(formdata,activeTab)
+
+     const response =  await (activeTab === 0
+        ? axios.post('/register/user', formdata)
+        : axios.post('/admin/register/rc', formdata));
+        console.log(response)
+
+        navigate('/')
     }
      function handleChange(e){
         const { name, value } = e.target;
@@ -40,17 +45,18 @@ function Register () {
             [name]: value
             
     }),
-   // console.log(e.target.value)
+   //console.log(e.target.value)
 )}
 
 
 const handleLoginRedirect =()=>{
-
+  
+  navigate('/')
 }
 
 const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
-    setFormData({ name: '', email: '', address: '', password: '' });
+    setFormData({ name: '', email: '', password: '' });
   };
 
 
@@ -89,14 +95,6 @@ const handleTabChange = (event, newValue) => {
             />
             <TextField
               fullWidth
-              label="Address"
-              name="address"
-              margin="normal"
-              value={formdata.address}
-              onChange={handleChange}
-            />
-            <TextField
-              fullWidth
               label="Password"
               name="password"
               type="password"
@@ -127,45 +125,6 @@ const handleTabChange = (event, newValue) => {
       </Card>
     </Container>
         </>
-        // <Fragment>
-        // <form  id="Register">
-        // <div className="mb-3">
-        // <label className="form-label">Email address</label>
-        //             <input  name="email"
-        //             type="email"
-        //             className="form-control"
-        //             id="email"
-        //             placeholder="Enter your email"
-        //             value={formdata.email}
-        //             onChange={handleChange}
-        //          />
-        // </div>
-        // <div className="mb-3">
-        //          <label className="form-label">Full Name</label>
-        //          <input name="name"
-        //             type="text"
-        //             className="form-control"
-        //             id="name"
-        //             placeholder="Enter your full name"
-        //             value={formdata.name}
-        //             onChange={handleChange}/>
-                 
-        // </div>
-        // <div className="mb-3">
-        //          <label className="form-label">Password</label>
-        //          <input name="password"
-        //             type="password"
-        //             className="form-control"
-        //             id="password"
-        //             placeholder="Enter your password"
-        //             value={formdata.password}
-        //             onChange={handleChange}/>
-        // </div>
-        // <button onClick={handlesubmit} type="submit" className="btn btn-primary">Submit</button>
-        // </form>
-        // </Fragment>
-    
-      
     )
 }
 
