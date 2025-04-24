@@ -54,8 +54,10 @@ const UserProfile = () => {
 
     try {
       const response = await axios.post(`/user/apply/${jobid}`, { userId });
+      alert("Applied")
       console.log(response.data);
     } catch (err) {
+      alert("Alredy applied")
       console.error('Error applying:', err);
     }
   }
@@ -109,13 +111,13 @@ const UserProfile = () => {
           Jobs Cart
         </Typography>
 
-        <Grid container spacing={2}>
+        <Grid>
           {job.map((job,key) => (
-            <Grid item xs={12} key={job.id}>
+            <Grid item xs={12} key={job._id} sx={{mb:4}} >
               <Card>
                 <CardContent>
+                <Typography variant="h6">{job.jobname}</Typography>
                 <Typography variant="p">ID {key+1}</Typography>
-                <Typography variant="h6">{job.name}</Typography>
                   <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                     {job.jd}
                   </Typography>
