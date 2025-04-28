@@ -22,7 +22,8 @@ const UserProfile = () => {
   const [currentuser, setCurrentuser] = useState({
     id: '',
     name: '',
-    email: ''
+    email: '',
+    profileImage:''
   })
 
   useEffect(() => {
@@ -30,9 +31,9 @@ const UserProfile = () => {
       try {
 
         const userdetails = await axios.post('/user/profile', {}, { withCredentials: true });
-        const { _id, name, email } = userdetails.data.loggedinuser;
-        console.log(_id, name, email)
-        setCurrentuser({ id: _id, name, email });
+        const { _id, name, email, profileImage } = userdetails.data.loggedinuser;
+        console.log(_id, name, email, profileImage)
+        setCurrentuser({ id: _id, name, email,profileImage });
 
         const response = await axios.get('/admin/alljobs');
         setJobs(response.data.alljobs);
@@ -50,7 +51,7 @@ const UserProfile = () => {
     setUpdateui(!updateui)
     const userId = currentuser.id;
     console.log("Button clicked")
-    console.log(jobid,userId)
+    console.log(jobid, userId)
 
     try {
       const response = await axios.post(`/user/apply/${jobid}`, { userId });
@@ -67,7 +68,7 @@ const UserProfile = () => {
     //e.preventDefault();
     await axios.post('/logout')
     navigate('/')
-    }
+  }
   return (
 
     <>
@@ -84,15 +85,28 @@ const UserProfile = () => {
             flexWrap: 'wrap',
           }}
         >
-          <Box>
-            <Typography variant="h5">{currentuser.name}</Typography>
-            <Typography variant="subtitle1">{currentuser.email}</Typography>
-            <Typography variant="body2" color="text.secondary">
-              Organization: ABC Corp
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Phone: +1 234 567 890
-            </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Box
+              component="img"
+              src={currentuser.profileImage}
+              alt="Profile"
+              sx={{
+                width: 64,
+                height: 64,
+                borderRadius: '50%',
+                objectFit: 'cover',
+              }}
+            />
+            <Box>
+              <Typography variant="h5">{currentuser.name}</Typography>
+              <Typography variant="subtitle1">{currentuser.email}</Typography>
+              <Typography variant="body2" color="text.secondary">
+                Organization: ABC Corp
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Phone: +1 234 567 890
+              </Typography>
+            </Box>
           </Box>
 
           <Button
@@ -106,18 +120,19 @@ const UserProfile = () => {
         </Paper>
 
 
+
         {/* Jobs Cart */}
         <Typography variant="h6" gutterBottom>
           Jobs Cart
         </Typography>
 
         <Grid>
-          {job.map((job,key) => (
-            <Grid item xs={12} key={job._id} sx={{mb:4}} >
+          {job.map((job, key) => (
+            <Grid item xs={12} key={job._id} sx={{ mb: 4 }} >
               <Card>
                 <CardContent>
-                <Typography variant="h6">{job.jobname}</Typography>
-                <Typography variant="p">ID {key+1}</Typography>
+                  <Typography variant="h6">{job.jobname}</Typography>
+                  <Typography variant="p">ID {key + 1}</Typography>
                   <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                     {job.jd}
                   </Typography>
