@@ -21,19 +21,19 @@ function Login() {
 
 
     const handlesubmit = async (e) => {
-         try {
-             e.preventDefault()
-           const response = activeTab === 0 ? await axios.post('/user/login', logindata,{withCredentials: true})
-           :await axios.post('/admin/login/rc', logindata,{withCredentials: true})
-          console.log(response)
-             console.log(logindata,activeTab)
-           activeTab===0? 
-           navigate('/user/profile')
-           :navigate('/admin/profile')
-
-        } catch (error) {
-             console.log(error.msg)
-         }
+      try {
+        e.preventDefault()
+        const response = activeTab === 0 ? await axios.post('/user/login', logindata,{withCredentials: true})
+        :await axios.post('/admin/login/rc', logindata,{withCredentials: true})
+       console.log(response)
+          console.log(logindata,activeTab)
+        activeTab===0? 
+        navigate('/user/profile')
+        :navigate('/admin/profile')
+      } catch (error) {
+        alert("No Admin access")
+      }
+            
 
     }
 
