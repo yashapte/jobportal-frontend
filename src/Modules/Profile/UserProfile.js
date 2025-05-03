@@ -7,33 +7,36 @@ import {
   CardContent,
   Grid,
   Container,
-  Paper,
-  Stack,
+  Stack
 } from '@mui/material';
-
+import NavBar from '../NavBar/NavBar.js'
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 
 const UserProfile = () => {
+
   const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState('');
   const [updateui, setUpdateui] = useState(false)
-  const [job, setJobs] = useState([])
+
+  const [jobs, setJobs] = useState([])
   const [currentuser, setCurrentuser] = useState({
     id: '',
     name: '',
     email: '',
-    profileImage:''
+    profileImage: '',
+    userResumeURL:''
   })
 
   useEffect(() => {
     const fetchJobs = async (e) => {
-      try {
+      try { 
 
         const userdetails = await axios.post('/user/profile', {}, { withCredentials: true });
-        const { _id, name, email, profileImage } = userdetails.data.loggedinuser;
-        console.log(_id, name, email, profileImage)
-        setCurrentuser({ id: _id, name, email,profileImage });
+        const { _id, name, email, profileImage, userResumeURL, isAdmin } = userdetails.data.loggedinuser;
+        
+        setCurrentuser({ id: _id, name, email, profileImage,userResumeURL,isAdmin });
 
         const response = await axios.get('/admin/alljobs');
         setJobs(response.data.alljobs);
@@ -48,21 +51,26 @@ const UserProfile = () => {
   }, [updateui]);
 
   async function handleApply(jobid) {
-    setUpdateui(!updateui)
-    const userId = currentuser.id;
-    console.log("Button clicked")
-    console.log(jobid, userId)
-
     try {
-      const response = await axios.post(`/user/apply/${jobid}`, { userId });
+      const userId = currentuser.id;
+      const response = await axios.post(`/user/apply/${jobid}`,{userId});
+      setUpdateui(!updateui)
       alert("Applied")
-      console.log(response.data);
     } catch (err) {
       alert("Alredy applied")
-      console.error('Error applying:', err);
+      console.error('Error applying:', err.message);
     }
   }
 
+  // const handleFileChange = (e) => {
+  //   const file = e.target.files[0];
+  //   setCurrentuser((prevData) => ({
+  //     ...prevData,
+  //     userResumeURL: file,
+  //   }));
+  //   console.log("This is resume",file)
+
+  // }
 
   const handlelogout = async (e) => {
     //e.preventDefault();
@@ -71,94 +79,48 @@ const UserProfile = () => {
   }
   return (
 
-    <>
-      <Container maxWidth="md" sx={{ mt: 5 }}>
-        {/* User Info */}
-        <Paper
-          elevation={3}
-          sx={{
-            p: 3,
-            mb: 4,
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-          }}
-        >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Box
-              component="img"
-              src={currentuser.profileImage}
-              alt="Profile"
-              sx={{
-                width: 64,
-                height: 64,
-                borderRadius: '50%',
-                objectFit: 'cover',
-              }}
-            />
-            <Box>
-              <Typography variant="h5">{currentuser.name}</Typography>
-              <Typography variant="subtitle1">{currentuser.email}</Typography>
-              <Typography variant="body2" color="text.secondary">
-                Organization: ABC Corp
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Phone: +1 234 567 890
-              </Typography>
-            </Box>
-          </Box>
+    <Fragment>
+      <NavBar data={currentuser} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+      <Container sx={{ mt: 5 }}>
 
-          <Button
-            variant="contained"
-            color="error"
-            onClick={handlelogout}
-            sx={{ mt: { xs: 2, sm: 0 } }}
-          >
-            Logout
-          </Button>
-        </Paper>
-
-
-
-        {/* Jobs Cart */}
         <Typography variant="h6" gutterBottom>
           Jobs Cart
         </Typography>
 
         <Grid>
-          {job.map((job, key) => (
-            <Grid item xs={12} key={job._id} sx={{ mb: 4 }} >
-              <Card>
-                <CardContent>
-                  <Typography variant="h6">{job.jobname}</Typography>
-                  <Typography variant="p">ID {key + 1}</Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    {job.jd}
-                  </Typography>
-
-                  <Stack direction="row" justifyContent="space-between" alignItems="center">
-                    <Typography variant="body2" color="text.secondary">
-                      Applicants: {job.applicants.length}
+          {jobs.filter((job) =>
+            job.jobname.toLowerCase().includes(searchQuery.toLowerCase())).map((job, key) => (
+              <Grid item xs={12} key={job._id} sx={{ mb: 4 }} >
+                <Card>
+                  <CardContent>
+                    <Typography variant="h6">{job.jobname}</Typography>
+                    <Typography variant="p">ID {key + 1}</Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                      {job.jd}
                     </Typography>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      size="small"
-                      onClick={() => handleApply(job._id)}
-                    >
-                      Apply
-                    </Button>
-                  </Stack>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
+
+                    <Stack direction="row" justifyContent="space-between" alignItems="center">
+                      <Typography variant="body2" color="text.secondary">
+                        Applicants: {job.applicants.length}
+                      </Typography>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        size="small"
+                        onClick={()=>handleApply(job._id)}
+                      >
+                        Apply
+                      </Button>
+                    </Stack>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
         </Grid>
       </Container>
 
 
-    </>
+    </Fragment>
   )
 }
 

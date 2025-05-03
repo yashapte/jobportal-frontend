@@ -1,91 +1,52 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, Fragment } from 'react';
+
 import { ExpandMore, ExpandLess } from '@mui/icons-material';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import InputBase from '@mui/material/InputBase';
-import SearchIcon from '@mui/icons-material/Search';
-import Avatar from '@mui/material/Avatar';
-import Drawer from '@mui/material/Drawer';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemText from '@mui/material/ListItemText';
+import GroupIcon from '@mui/icons-material/Group';
+
+
+import NavBar from '../NavBar/NavBar.js'
 import {
   Container,
   Typography,
-  Paper,
   Box,
   Button,
   Grid,
-  Card,
-  CardContent,
   Stack,
   Dialog,
   DialogTitle,
+  Drawer,
+  Card,
+  CardContent,
+  IconButton,
+  Collapse,
   DialogContent,
   TextField,
   DialogActions,
-  Collapse,
-  IconButton,
   Divider
 } from '@mui/material';
-import { alpha, styled } from '@mui/material/styles';
 import axios from 'axios';
-
-
-
-const Search = styled('div')(({ theme }) => ({
-  position: 'relative',
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: alpha(theme.palette.common.black, 0.05),
-  '&:hover': {
-    backgroundColor: alpha(theme.palette.common.black, 0.1),
-  },
-  marginRight: theme.spacing(2),
-  marginLeft: 0,
-  width: '100%',
-  maxWidth: 400,
-}));
-
-const SearchIconWrapper = styled('div')(({ theme }) => ({
-  padding: theme.spacing(0, 2),
-  height: '100%',
-  position: 'absolute',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-}));
-
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  color: 'inherit',
-  paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-  width: '100%',
-}));
-
-
-
 
 const AdminProfilePage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [jobs, setJobs] = useState([]);
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [currentuser, setCurrentuser] = useState({ id: '', name: '', email: '' });
+  const [currentuser, setCurrentuser] = useState({ id: '', name: '', email: '', profileImage:'',userResumeURL:'' });
   const [openDialog, setOpenDialog] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [expandedJob, setExpandedJob] = useState(null);
-  const [formData, setFormData] = useState({ id: 'null', name: '', jd: '', company: '', experience: '' });
+  const [formData, setFormData] = useState({ id: 'null', jobname: '', jd: '', company: '', experience: '' });
   useEffect(() => {
     const fetchdetails = async (e) => {
       try {
 
         const userdetails = await axios.post('/admin/profile/rc', { withCredentials: true });
-        const { _id, name, email, profileImage } = userdetails.data.loggedinuser;
+        const { _id, name, email, profileImage, userResumeURL } = userdetails.data.loggedinuser;
         console.log(_id, name, email)
-        setCurrentuser({ id: _id, name, email, profileImage });
+        setCurrentuser({ id: _id, name, email, profileImage, userResumeURL });
 
         const response = await axios.get('/admin/alljobs');
+        console.log("This is response on all jobs ",response.data.alljobs)
         setJobs(response.data.alljobs);
-        console.log(response.data.alljobs)
+       
 
 
       } catch (error) {
@@ -96,21 +57,6 @@ const AdminProfilePage = () => {
     fetchdetails();
   }, []);
 
-  const navigate = useNavigate();
-
-
-  const toggleDrawer = (open) => () => {
-    setDrawerOpen(open);
-    const handleLogout = () => {
-      // logout logic
-      console.log("Logged out");
-    };
-  }
-  const handleLogout = async (e) => {
-    await axios.post('/logout')
-    navigate('/')
-    console.log('Admin logged out');
-  };
 
   const handleDelete = async (id) => {
     try {
@@ -130,7 +76,7 @@ const AdminProfilePage = () => {
   };
 
   const handleCreate = () => {
-    setFormData({ id: null, name: '', jd: '', experience: '', company: '' });
+    setFormData({ id: null, jobname: '', jd: '', experience: '', company: '' });
     setEditMode(false);
     setOpenDialog(true);
   };
@@ -140,7 +86,7 @@ const AdminProfilePage = () => {
 
     try {
       const data = {
-        jobname: formData.name,
+        jobname: formData.jobname,
         jd: formData.jd,
       };
 
@@ -186,122 +132,139 @@ const AdminProfilePage = () => {
     setExpandedJob(expandedJob === jobId ? null : jobId);
   };
   return (
-    <Container sx={{ mt: 5 }}>
+    <Fragment>
+      <NavBar data={currentuser} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+      <Container sx={{ mt: 5 }}>
 
-      <AppBar position="static" color="inherit" elevation={1}>
-        <Toolbar sx={{ justifyContent: 'space-between' }}>
-          {/* Left */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-            <Typography variant="h6" color="primary" fontWeight={700}>
-              naukri
-            </Typography>
-            <Button variant="text" color="inherit">Jobs</Button>
-          </Box>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 4 }}>
+          <Button variant="contained"
 
-          {/* Center */}
-          <Search>
-            <SearchIconWrapper>
-              <SearchIcon color="action" />
-            </SearchIconWrapper>
-            <StyledInputBase
-              placeholder="Search jobs here"
-              inputProps={{ 'aria-label': 'search' }}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </Search>
-
-          {/* Right: Avatar */}
-          <IconButton onClick={toggleDrawer(true)}>
-            <Avatar alt="Profile" src={currentuser.profileImage} />
-          </IconButton>
-        </Toolbar>
-      </AppBar>
-
-      {/* Drawer */}
-      <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer(false)}>
-        <Box sx={{ width: 300, p: 2 }}>
-          <Typography variant="h6" fontWeight={600}>
-            Profile
-          </Typography>
-          <Divider sx={{ my: 2 }} />
-          <Box sx={{ textAlign: 'center', mb: 2 }}>
-            <Avatar
-              src={currentuser.profileImage}
-              alt="Profile"
-              sx={{ width: 80, height: 80, margin: '0 auto' }}
-            />
-            <Typography variant="h6" mt={2}>{currentuser.name}</Typography>
-            <Typography variant="body2" color="text.secondary">{currentuser.email}</Typography>
-          </Box>
-          <List>
-            <ListItem button>
-              <ListItemText primary="Update Profile" />
-            </ListItem>
-            <ListItem button onClick={handleLogout}>
-              <ListItemText primary="Logout" />
-            </ListItem>
-          </List>
+            sx={{
+              backgroundColor: '#30668a',
+              color: '#ffffff',
+              '&:hover': {
+                backgroundColor: '#ffffff',
+                color: '#30668a',
+                border: '1px solid #30668a',
+              }
+            }}
+            onClick={handleCreate}>Create New Job</Button>
         </Box>
-      </Drawer>
 
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 4 }}>
-        <Button variant="contained" color="primary" onClick={handleCreate}>Create New Job</Button>
-      </Box>
+        <Grid sx={{ mt: 3 }}>
+          {jobs.filter((job) =>
+            job.jobname.toLowerCase().includes(searchQuery.toLowerCase())).map((job) => (
 
-      <Grid sx={{ mt: 3 }}>
-        {jobs.filter((job) =>
-          job.jobname.toLowerCase().includes(searchQuery.toLowerCase())).map((job) => (
+
+
               <Grid item xs={12} key={job._id}>
-                <Card sx={{ mb: 5 }} >
+                <Card sx={{ mb: 5, borderRadius: 2, boxShadow: 3 }}>
                   <CardContent>
                     <Stack direction="row" justifyContent="space-between" alignItems="center">
                       <Box>
-                        <Typography variant="h6">{job.jobname}</Typography>
-                        <Typography variant="body2" color="text.secondary">Applicants: {job.applicants.length}</Typography>
-
+                        <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#2b8687' }}>
+                          {job.jobname}
+                        </Typography>
+                        <Stack direction="row" alignItems="center" spacing={1}>
+                          <GroupIcon fontSize="small" color="action" />
+                          <Typography variant="body2" color="text.secondary">
+                            Applicants: {job.applicants.length}
+                          </Typography>
+                        </Stack>
                       </Box>
-                      <IconButton onClick={() => toggleExpand(job._id)}>
+                      <IconButton onClick={() => toggleExpand(job._id)} color="primary">
                         {expandedJob === job._id ? <ExpandLess /> : <ExpandMore />}
                       </IconButton>
                     </Stack>
+
                     <Collapse in={expandedJob === job._id}>
-                      <Box mt={2}>
-                        <Typography variant="subtitle2">Job Description:</Typography>
-                        <Typography variant="body2" sx={{ mb: 2 }}>{job.jd}</Typography>
+                      <Box mt={2} sx={{ backgroundColor: '#f9f9f9', borderRadius: 1, padding: 2 }}>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>Job Description:</Typography>
+                        <Typography variant="body2" sx={{ mb: 2, lineHeight: 1.6 }}>{job.jd}</Typography>
                         <Divider sx={{ my: 1 }} />
-                        <Typography variant="subtitle2">Applicants:</Typography>
+
+                        <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>Applicants:</Typography>
+                        
+
                         {job.applicants.map((applicant, idx) => (
-                          <Box key={idx} sx={{ pl: 2, py: 1 }}>
-                            <Typography variant="body2">Name: {applicant.name} </Typography>
-                            <Typography variant="body2">Email: {applicant.email}</Typography>
+                          
+                          <Box key={idx} sx={{ pl: 2, py: 1, backgroundColor: '#c2c5ff', borderRadius: 1, mb: 1 }}>
+                            {console.log(applicant.userid.name)}
+                            <Typography variant="body2" sx={{ fontWeight: 'bold' }}>Name:</Typography>
+                            <Typography variant="body2">{applicant.userid.name}</Typography>
+                            <Typography variant="body2" sx={{ mt: 1, fontWeight: 'bold' }}>Email:</Typography>
+                            <Typography variant="body2">{applicant.userid.email}</Typography>
+                      
+                            {applicant.userid.userResumeURL && (
+                              <>
+                           
+                                <Typography variant="body2" sx={{ mt: 1, fontWeight: 'bold' }}>Resume:</Typography>
+                                <Typography
+                                  variant="body2"
+                                  component="a"
+                                   href={applicant.userid.userResumeURL}
+                                  target="_blank"
+                                  download
+                                  sx={{
+                                    textDecoration: 'underline',
+                                    color: 'primary.main',
+                                    cursor: 'pointer',
+                                    '&:hover': { color: 'primary.dark' }
+                                  }}
+                                >
+                                  View/Download Resume
+                                </Typography>
+                              </>
+                            )}
+
                             <Divider sx={{ my: 1 }} />
                           </Box>
                         ))}
-                        <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
-                          <Button variant="outlined" size="small" onClick={() => handleEdit(job)}>Update</Button>
-                          <Button variant="outlined" size="small" color="error" onClick={() => handleDelete(job._id)}>Delete</Button>
+
+                        <Stack direction="row" spacing={2} sx={{ mt: 3 }}>
+                          <Button
+                            variant="contained"
+                            size="small"
+                            sx={{ bgcolor: 'primary.main', '&:hover': { bgcolor: 'primary.dark' } }}
+                            onClick={() => handleEdit(job)}
+                          >
+                            Update
+                          </Button>
+                          <Button
+                            variant="outlined"
+                            size="small"
+                            color="error"
+                            sx={{ borderColor: 'error.main', '&:hover': { borderColor: 'error.dark' } }}
+                            onClick={() => handleDelete(job._id)}
+                          >
+                            Delete
+                          </Button>
                         </Stack>
                       </Box>
                     </Collapse>
                   </CardContent>
                 </Card>
               </Grid>
-            ))}
-      </Grid>
 
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)} fullWidth>
-        <DialogTitle>{editMode ? 'Update Job' : 'Create Job'}</DialogTitle>
-        <DialogContent>
-          <TextField margin="dense" label="Job Name" name="name" fullWidth value={formData.name || ''} onChange={handleChange} />
-          <TextField margin="dense" label="Job Description" name="jd" fullWidth multiline rows={4} value={formData.jd || ''} onChange={handleChange} />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
-          <Button onClick={handleSave} variant="contained">{editMode ? 'Update' : 'Create'}</Button>
-        </DialogActions>
-      </Dialog>
-    </Container>
+
+
+
+            ))}
+        </Grid>
+
+        <Dialog open={openDialog} onClose={() => setOpenDialog(false)} fullWidth>
+          <DialogTitle>{editMode ? 'Update Job' : 'Create Job'}</DialogTitle>
+          <DialogContent>
+            <TextField margin="dense" label="Job Name" name="jobname" fullWidth value={formData.jobname || ''} onChange={handleChange} />
+            <TextField margin="dense" label="Job Description" name="jd" fullWidth multiline rows={4} value={formData.jd || ''} onChange={handleChange} />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
+            <Button onClick={handleSave} variant="contained">{editMode ? 'Update' : 'Create'}</Button>
+          </DialogActions>
+        </Dialog>
+      </Container>
+    </Fragment>
 
   );
 };

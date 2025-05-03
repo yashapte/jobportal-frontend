@@ -21,7 +21,8 @@ function Register() {
     name: '',
     email: '',
     password: '',
-    profileImageUrl: ''
+    profileImageUrl: '',
+    userResumeURL: ''
   });
 
   const handleRegister = async (e) => {
@@ -31,7 +32,8 @@ function Register() {
     formDataToSend.append('name', formdata.name);
     formDataToSend.append('email', formdata.email);
     formDataToSend.append('password', formdata.password);
-    formDataToSend.append('profileImage', formdata.profileImageUrl); 
+    formDataToSend.append('profileImage', formdata.profileImageUrl);
+    formDataToSend.append('userResumeURL', formdata.userResumeURL);
 
 
     const url = activeTab === 0 ? '/register/user' : '/admin/register/rc';
@@ -42,23 +44,20 @@ function Register() {
           'Content-Type': 'multipart/form-data',
         },
       });
-  
-      console.log(response.data);
       navigate('/');
     } catch (error) {
       console.error('Registration failed', error);
     }
   };
 
-  
+
   function handleChange(e) {
     const { name, value } = e.target;
     setFormData((prevForm) => ({
       ...prevForm,
       [name]: value
 
-    }),
-      //console.log(e.target.value)
+    })
     )
   }
 
@@ -69,12 +68,13 @@ function Register() {
 
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
+    const { name, files } = e.target;
+    const file = files[0];
+
     setFormData((prevData) => ({
       ...prevData,
-      profileImageUrl: file,
+      [name]: file
     }));
-    console.log(file.name)
   };
 
   const handleTabChange = (event, newValue) => {
@@ -129,6 +129,18 @@ function Register() {
                 fullWidth
                 label="Profile Image"
                 name="profileImageUrl"
+                margin="normal"
+                InputLabelProps={{ shrink: true }}
+                InputProps={{
+                  inputProps: { accept: 'image/*' },
+                  type: 'file',
+                }}
+                onChange={handleFileChange}
+              />
+              <TextField
+                fullWidth
+                label="User Resume"
+                name="userResumeURL"
                 margin="normal"
                 InputLabelProps={{ shrink: true }}
                 InputProps={{
