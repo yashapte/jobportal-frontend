@@ -35,8 +35,14 @@ const UserProfile = () => {
 
         const userdetails = await axios.post('/user/profile', {}, { withCredentials: true });
         const { _id, name, email, profileImage, userResumeURL, isAdmin } = userdetails.data.loggedinuser;
+        console.log("Ths is first time user details",userdetails.data.loggedinuser,"This is _id:",_id)
         
-        setCurrentuser({ id: _id, name, email, profileImage,userResumeURL,isAdmin });
+        setCurrentuser({ name: name,
+          email: email,
+          id: _id,
+          profileImage: profileImage ,
+          userResumeURL: userResumeURL,
+        });
 
         const response = await axios.get('/admin/alljobs');
         setJobs(response.data.alljobs);
@@ -62,16 +68,6 @@ const UserProfile = () => {
     }
   }
 
-  // const handleFileChange = (e) => {
-  //   const file = e.target.files[0];
-  //   setCurrentuser((prevData) => ({
-  //     ...prevData,
-  //     userResumeURL: file,
-  //   }));
-  //   console.log("This is resume",file)
-
-  // }
-
   const handlelogout = async (e) => {
     //e.preventDefault();
     await axios.post('/logout')
@@ -88,6 +84,8 @@ const UserProfile = () => {
         </Typography>
 
         <Grid>
+
+          {/* {console.log(jobs)} */}
           {jobs.filter((job) =>
             job.jobname.toLowerCase().includes(searchQuery.toLowerCase())).map((job, key) => (
               <Grid item xs={12} key={job._id} sx={{ mb: 4 }} >
@@ -118,8 +116,6 @@ const UserProfile = () => {
             ))}
         </Grid>
       </Container>
-
-
     </Fragment>
   )
 }

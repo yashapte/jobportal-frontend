@@ -67,10 +67,27 @@ const NavBar = ({ data, searchQuery, setSearchQuery }) => {
         navigate('/')
         console.log('Admin logged out');
     };
-
+    const handlehome =(e)=>{
+        e.preventDefault();
+        navigate('/user/profile')
+    }
     const handleJobs = (e) => {
         e.preventDefault();
         navigate('/Applied')
+    }
+
+    const handleupdateprofile =(e)=>{
+        e.preventDefault();
+
+        console.log(data.isAdmin)
+        if(data.isAdmin){
+            navigate('/AdminUpdateProfile')
+            }else
+        {
+        navigate('/UserUpdateProfile')
+
+        }
+       
     }
     return (
         <Fragment>
@@ -78,9 +95,9 @@ const NavBar = ({ data, searchQuery, setSearchQuery }) => {
                 <Toolbar sx={{ justifyContent: 'space-between' }}>
 
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
-                        <Typography variant="h6" color="primary" fontWeight={700}>
+                       <a onClick={handlehome}> <Typography variant="h6"   color="primary" fontWeight={700}>
                             फुलेरा naukri
-                        </Typography>
+                        </Typography> </a>
                         {/* {data.isAdmin ? "" : <Button onClick={handleJobs} variant="text" color="inherit">Applied</Button>} */}
                         <Button onClick={handleJobs} variant="text" color="inherit">Applied</Button>
                     </Box>
@@ -152,7 +169,7 @@ const NavBar = ({ data, searchQuery, setSearchQuery }) => {
 
                     <List>
                         <ListItem button>
-                            <ListItemText primary="Update Profile" />
+                            <ListItemText onClick={handleupdateprofile} primary="Update Profile" />
                         </ListItem>
                         <ListItem button onClick={handleLogout}>
                             <ListItemText primary="Logout" />

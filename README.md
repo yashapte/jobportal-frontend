@@ -84,7 +84,7 @@ $ git push -u origin main
 
  // if (editMode) {
     //   // Update existing job
-    //   // setJobs(jobs.map((job) => (job.id === formData.id ? formData : job)));
+    //   // setJobs(jobs.map((job) => (jobid === formDataid ? formData : job)));
     // } else {
     //   // Add new job
     //   const newJob = {

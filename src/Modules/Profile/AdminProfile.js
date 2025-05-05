@@ -14,7 +14,6 @@ import {
   Stack,
   Dialog,
   DialogTitle,
-  Drawer,
   Card,
   CardContent,
   IconButton,
@@ -29,7 +28,7 @@ import axios from 'axios';
 const AdminProfilePage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [jobs, setJobs] = useState([]);
-  const [currentuser, setCurrentuser] = useState({ id: '', name: '', email: '', profileImage:'',userResumeURL:'' });
+  const [currentuser, setCurrentuser] = useState({ id: '', name: '', email: '', profileImage:'',userResumeURL:'',isAdmin:true });
   const [openDialog, setOpenDialog] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [expandedJob, setExpandedJob] = useState(null);
@@ -39,9 +38,14 @@ const AdminProfilePage = () => {
       try {
 
         const userdetails = await axios.post('/admin/profile/rc', { withCredentials: true });
-        const { _id, name, email, profileImage, userResumeURL } = userdetails.data.loggedinuser;
-        console.log(_id, name, email)
-        setCurrentuser({ id: _id, name, email, profileImage, userResumeURL });
+        const { _id, name, email, profileImage, userResumeURL, isAdmin } = userdetails.data.loggedinuser;
+        console.log("This is from Admin page when redireted ",userdetails.data.loggedinuser)
+        setCurrentuser({ email: email,
+          id: _id,
+          name:name,
+          isAdmin:isAdmin,
+          profileImage: profileImage ,
+          userResumeURL: userResumeURL, });
 
         const response = await axios.get('/admin/alljobs');
         console.log("This is response on all jobs ",response.data.alljobs)
